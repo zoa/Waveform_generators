@@ -10,6 +10,14 @@ Sine_generator::Sine_generator( byte min_in, byte max_in, float frequency, float
   update_range();
 }
 
+void Sine_generator::set( float new_minimum, float new_maximum, float new_frequency, float new_phase )
+{
+  set_minimum( new_minimum );
+  set_maximum( new_maximum );
+  set_frequency( new_frequency );
+  set_phase( new_phase );
+}
+
 ///////////////////////////////////////////////////////////
 
 void Sine_generator::set_minimum( byte new_minimum )
@@ -38,7 +46,7 @@ void Sine_generator::set_maximum( byte new_maximum )
  
 byte Sine_generator::next_value()
 {
-  value_ = ( sin( (PI*2) * ( cnt_ * frequency_ / range_ ) + phase_ ) + 1 ) * range_ + minimum_;
+  value_ = ( sin( (PI*2) * ( cnt_ * frequency_ / 255 ) + phase_ ) + 1 ) * range_ + minimum_;
   ++cnt_;
   return value_;
 }

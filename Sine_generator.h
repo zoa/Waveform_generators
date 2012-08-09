@@ -24,6 +24,7 @@ public:
   // by this amount. 0 is a sine wave, pi/2 is a cosine. 
   const float& phase() const { return phase_; }
   
+  void set( float new_frequency, float new_phase, float new_minimum, float new_maximum );
   void set_frequency( float new_frequency ) { frequency_ = new_frequency; }
   void set_phase( float new_phase ) { phase_ = new_phase; }
   void set_minimum( byte new_minimum );
@@ -50,3 +51,4 @@ private:
   float value_;
   float cnt_;
 };
+
