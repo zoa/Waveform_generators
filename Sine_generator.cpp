@@ -4,11 +4,8 @@
 ///////////////////////////////////////////////////////////
 
 Sine_generator::Sine_generator( byte min_in, byte max_in, float frequency, float phase )
- : minimum_(min_in), maximum_(max_in), frequency_(frequency), phase_(phase), 
-  value_(0), cnt_(0)
-{
-  update_range();
-}
+ : Oscillating_generator( min_in, max_in ), frequency_(frequency), phase_(phase)
+{}
 
 void Sine_generator::set( float new_minimum, float new_maximum, float new_frequency, float new_phase )
 {
@@ -20,35 +17,30 @@ void Sine_generator::set( float new_minimum, float new_maximum, float new_freque
 
 ///////////////////////////////////////////////////////////
 
-void Sine_generator::set_minimum( byte new_minimum )
+void Sine_generator::update_values()
 {
-  minimum_ = new_minimum;
-  if ( minimum_ > maximum_ )
+  if ( range_ != 0. )
   {
-    maximum_ = minimum_;
+    raw_value_ = ( sin( (PI*2) * ( cnt_ * frequency_/MAX_LEVEL ) + phase_ ) + 1 ) * range_ + minimum_;
+    scaled_value_ = raw_value_ * MAX_LEVEL;
   }
-  update_range();
-}
-
-///////////////////////////////////////////////////////////
-
-void Sine_generator::set_maximum( byte new_maximum )
-{
-  maximum_ = new_maximum;
-  if ( maximum_ < minimum_ )
-  {
-    minimum_ = maximum_;
-  }
-  update_range();
+  ++cnt_;
 }
 
 ///////////////////////////////////////////////////////////
  
 byte Sine_generator::next_value()
 {
-  value_ = ( sin( (PI*2) * ( cnt_ * frequency_ / 255 ) + phase_ ) + 1 ) * range_ + minimum_;
-  ++cnt_;
-  return value_;
+  update_values();
+  return scaled_value_;
+}
+
+///////////////////////////////////////////////////////////
+ 
+float Sine_generator::next_raw_value()
+{
+  update_values();
+  return raw_value_;
 }
 
 ///////////////////////////////////////////////////////////
@@ -60,4 +52,11 @@ void Sine_generator::test()
   {
     Serial.println( next_value() );
   }
+}
+
+///////////////////////////////////////////////////////////
+
+Linear_waveform::Linear_waveform( byte minimum, byte maximum, bool sawtooth )
+{
+  
 }
