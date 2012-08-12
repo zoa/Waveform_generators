@@ -11,18 +11,26 @@
 class Waveform_generator
 {
 public:
-  
   // The most recently calculated value of the wave (range [0,MAX_LEVEL])
-  
-  virtual byte value() const = 0;
-  // Advances the wave one step and returns the newly calculated final value (range [0,MAX_LEVEL])
-  virtual byte next_value() = 0;
+  byte value() const { return raw_value_*MAX_LEVEL; }
   
   // The most recently calculated value of the wave (range [0,1])
-  virtual float raw_value() const = 0;
+  float raw_value() const { return raw_value_; }
+  
+  // Advances the wave one step and returns the newly calculated final value (range [0,MAX_LEVEL])
+  byte next_value();
   
   // Advances the wave one step and returns the newly calculated final value (range [0,1])
-  virtual float next_raw_value() = 0;
+  float next_raw_value();
+
+protected:
+  Waveform_generator() : raw_value_(0) {}
+  Waveform_generator(float val) : raw_value_(val) {}
+  
+  float raw_value_;
+  
+  // Advances the wave one step
+  virtual void update_value() = 0;
 };
 
 
@@ -31,22 +39,29 @@ public:
 class Oscillating_generator : public Waveform_generator
 {
 public:
-  Oscillating_generator( byte min_in, byte max_in );
-    
+  Oscillating_generator( byte min_in, byte max_in, float frequency );
+   
+  // The wave's lower bound on the Y axis [0,255]
+  float minimum() const { return minimum_*MAX_LEVEL; }
+  
+  // The wave's upper bound on the Y axis [0,255]
+  float maximum() const { return maximum_*MAX_LEVEL; }
+  
+  // Frequency multiplier. This is a factor, not a time unit (since the wave's 
+  // actual frequency in milliseconds depends on how often next_value is called).
+  const float& frequency() const { return frequency_; }
+  
   void set_minimum( float new_minimum ); // [0,255]
   void set_maximum( float new_maximum ); // [0,255]
+  void set_frequency( float new_frequency ) { frequency_ = new_frequency; }
   
-  // from Waveform_generator
-  byte value() const { return scaled_value_; }
-  float raw_value() const { return raw_value_; }
+  // Prints the wave values to the serial console. Call Serial.begin before using.
+  void test();
   
 protected:
-  float minimum_;
-  float maximum_;
+  float minimum_, maximum_;
   float range_; // half the amplitude
-  float raw_value_;
-  
-  byte scaled_value_; // [0,255]
+  float frequency_;
   
   float cnt_;
   
@@ -59,11 +74,11 @@ protected:
 class Empty_waveform : public Waveform_generator
 {
 public:
+  Empty_waveform() : Waveform_generator(0) {}
+  
+protected:
   // from Waveform_generator
-  byte value() const { return 0; }
-  byte next_value() { return 0; }
-  float raw_value() const { return 0; }
-  float next_raw_value() { return 0; }
+  void update_value() {}
 };
 
 
@@ -74,16 +89,9 @@ class Constant_waveform: public Waveform_generator
 {
 public:
   Constant_waveform( byte value ) : 
-    raw_value_( (float)value/MAX_LEVEL) {}
-    
-      // from Waveform_generator
-  byte value() const { return raw_value_*MAX_LEVEL; }
-  byte next_value() { return raw_value_*MAX_LEVEL; }
-  float raw_value() const { return raw_value_; }
-  float next_raw_value() { return raw_value_; }
-  
-private:
-  float raw_value_;
+    Waveform_generator( (float)value/MAX_LEVEL) {}
+protected:
+  void update_value() {}
 };
 
 #endif
