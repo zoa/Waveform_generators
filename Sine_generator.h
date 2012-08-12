@@ -11,7 +11,7 @@
 class Sine_generator : public Oscillating_generator
 {
 public:
-  Sine_generator( byte min_in, byte max_in, float frequency, float phase );
+  Sine_generator( byte min_in, byte max_in, float frequency, float phase = 0 );
 
   // The wave's lower bound on the Y axis [0,255]
   float minimum() const { return minimum_*MAX_LEVEL; }
@@ -50,14 +50,28 @@ private:
 
 
 // NOT DONE (obviously)
-class Linear_waveform
+class Linear_generator : public Oscillating_generator
 {
 public:
-  Linear_waveform( byte minimum, byte maximum, bool sawtooth );
+  enum Wave_type { SAWTOOTH, TRIANGLE }; // could make separate classes if more time
+  
+  Linear_generator( Wave_type type, byte minimum, byte maximum, byte start_value = 0 );
+  
+  // from Waveform_generator
+  byte value() const { return raw_value_*MAX_LEVEL; }
+  byte next_value();
+  float raw_value() const { return raw_value_; }
+  float next_raw_value();
+  
+  // prints values to serial console. be sure to call Serial.begin before
+  void test();
   
 private:
-  
-  bool up_;
+  void update_value();
+  signed char direction_; //only for triangle waves - 1=up, -1=down
+  Wave_type type_;
+  float raw_value_;
+  float step_size_;
 };
 
 

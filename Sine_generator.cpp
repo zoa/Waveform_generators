@@ -56,7 +56,59 @@ void Sine_generator::test()
 
 ///////////////////////////////////////////////////////////
 
-Linear_waveform::Linear_waveform( byte minimum, byte maximum, bool sawtooth )
+Linear_generator::Linear_generator( Wave_type type, byte minimum, byte maximum, byte start_value )
+  : Oscillating_generator( minimum, maximum ), type_(type), direction_(1)
 {
-  
+  raw_value_ = start_value <= maximum && start_value >= minimum ? start_value/MAX_LEVEL : minimum/MAX_LEVEL;
+  step_size_ = range_ / MAX_LEVEL;
 }
+
+///////////////////////////////////////////////////////////
+
+void Linear_generator::update_value()
+{
+  if ( range_ != 0. )
+  {
+    raw_value_ += step_size_*direction_;
+    if ( raw_value_ > maximum_ || raw_value_ < minimum_ )
+    {
+      if ( type_ == SAWTOOTH )
+      {
+	raw_value_ = minimum_;
+      }
+      else
+      {
+	direction_ = (direction_==1) ? -1 : 1;
+	raw_value_ += step_size_*direction_;
+      }
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////
+
+byte Linear_generator::next_value()
+{
+  update_value();
+  return raw_value_*MAX_LEVEL;
+}
+
+///////////////////////////////////////////////////////////
+
+float Linear_generator::next_raw_value()
+{
+  update_value();
+  return raw_value_;
+}
+
+///////////////////////////////////////////////////////////
+
+void Linear_generator::test()
+{
+  for ( int i = 0; i < 1000; ++i )
+  {
+    Serial.println( next_value() );
+  }
+}
+
+///////////////////////////////////////////////////////////
