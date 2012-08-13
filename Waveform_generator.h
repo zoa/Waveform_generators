@@ -22,12 +22,16 @@ public:
   
   // Advances the wave one step and returns the newly calculated final value (range [0,1])
   float next_raw_value();
+  
+  // Sets the current audio level on a [0,1] scale
+  void set_audio_level( float level );
 
 protected:
-  Waveform_generator() : raw_value_(0) {}
-  Waveform_generator(float val) : raw_value_(val) {}
+  Waveform_generator() : raw_value_(0), audio_level_(0) {}
+  Waveform_generator(float val) : raw_value_(val), audio_level_(0) {}
   
   float raw_value_;
+  float audio_level_;
   
   // Advances the wave one step
   virtual void update_value() = 0;

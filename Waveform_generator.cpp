@@ -1,15 +1,5 @@
 #include "Waveform_generator.h"
 
-///////////////////////////////////////////////////////////
-
-Oscillating_generator::Oscillating_generator( byte min_in, byte max_in, float frequency ) 
-    : cnt_(0), frequency_(frequency)
-{
-  set_minimum(min_in);
-  set_maximum(max_in);
-  set_frequency(frequency);
-}
-
 
 ///////////////////////////////////////////////////////////
  
@@ -25,6 +15,23 @@ float Waveform_generator::next_raw_value()
 {
   update_value();
   return raw_value_;
+}
+
+///////////////////////////////////////////////////////////
+
+void Waveform_generator::set_audio_level( float level )
+{
+  audio_level_ = level;
+}
+
+///////////////////////////////////////////////////////////
+
+Oscillating_generator::Oscillating_generator( byte min_in, byte max_in, float frequency ) 
+    : cnt_(0), frequency_(frequency)
+{
+  set_minimum(min_in);
+  set_maximum(max_in);
+  set_frequency(frequency);
 }
 
 ///////////////////////////////////////////////////////////

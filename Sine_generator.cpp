@@ -18,7 +18,7 @@ void Sine_generator::update_value()
 {
   if ( range_ != 0. )
   {
-    raw_value_ = ( sin( (PI*2) * ( cnt_ * frequency_/MAX_LEVEL ) + phase_ ) + 1 ) * range_ + minimum_;
+    raw_value_ = ( sin( (PI*2) * ( cnt_ * (frequency_+audio_level_)/MAX_LEVEL ) + phase_ ) + 1 ) * range_ + minimum_;
   }
   ++cnt_;
 }
@@ -38,7 +38,7 @@ void Linear_generator::update_value()
 {
   if ( range_ != 0. )
   {
-    raw_value_ += step_size_*frequency_*direction_;
+    raw_value_ += step_size_*(frequency_+audio_level_)*direction_;
     if ( raw_value_ > maximum_ || raw_value_ < minimum_ )
     {
       if ( type_ == SAWTOOTH )
@@ -71,5 +71,5 @@ void Square_generator::update_value()
     cnt_ = 0;
   }
   raw_value_ = on_ ? maximum_ : minimum_;
-  cnt_ += frequency_;
+  cnt_ += (frequency_+audio_level_);
 }
