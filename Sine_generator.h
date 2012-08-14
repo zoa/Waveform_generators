@@ -66,4 +66,22 @@ private:
 };
 
 
+
+// it isn't really oscillating, but. Takes a random value between minimum and maximum
+// at intervals in the [minimum_spacing,maximum_spacing] range; is baseline_value the rest of the time.
+class White_noise_generator : public Oscillating_generator
+{
+public:
+  White_noise_generator( byte minimum, byte maximium, uint16_t minimum_spacing, uint16_t maximum_spacing, byte baseline_value = 0 );
+  
+private:
+  uint16_t min_spacing_, max_spacing_;
+  uint32_t next_cnt_, cnt_;
+  float baseline_;
+  
+  void update_value();
+};
+
+
+
 #endif

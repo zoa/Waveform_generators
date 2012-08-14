@@ -73,3 +73,31 @@ void Square_generator::update_value()
   raw_value_ = on_ ? maximum_ : minimum_;
   cnt_ += (frequency_+audio_level_);
 }
+
+
+///////////////////////////////////////////////////////////
+
+White_noise_generator::White_noise_generator( byte minimum, byte maximum, uint16_t minimum_spacing, uint16_t maximum_spacing, byte baseline_value )
+  : Oscillating_generator( minimum, maximum, 1 ), min_spacing_(minimum_spacing), max_spacing_(maximum_spacing+1),
+  next_cnt_(0), cnt_(0), baseline_((float)baseline_value/MAX_LEVEL)
+ {}
+ 
+///////////////////////////////////////////////////////////
+
+void White_noise_generator::update_value()
+{
+  if ( range_ != 0 )
+  {
+    if ( cnt_ == next_cnt_ )
+    {
+      raw_value_ = minimum_ + (double)rand()/(double)RAND_MAX * range_ * 2;
+      next_cnt_ = random( min_spacing_, max_spacing_ );
+      cnt_ = 0;
+    }
+    else
+    {
+      raw_value_ = baseline_;
+      ++cnt_;
+    }
+  }
+}
