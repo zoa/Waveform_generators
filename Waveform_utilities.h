@@ -25,25 +25,46 @@ rgbInfo_t get_next_rgb( Waveform_generator* r, Waveform_generator* g, Waveform_g
 }
 
 
-byte next_summed_value( Waveform_generator* a, Waveform_generator* b )
+byte summed_value( Waveform_generator* a, Waveform_generator* b )
  {
-   float rval = a->next_raw_value() + b->next_raw_value();
+   float rval = a->raw_value() + b->raw_value();
    if ( rval > 1.0 )
-   {
-     rval == 1.0;
-   }
-   if ( rval < 1.0 )
    {
      rval = 1.0;
    }
+   if ( rval < 0.0 )
+   {
+     rval = 0.0;
+   }
    return rval * MAX_LEVEL;
  }
- 
- /*
- byte get_luminance( const rgbInfo_t& color )
+
+
+byte next_summed_value( Waveform_generator* a, Waveform_generator* b )
  {
-   return get_luminance( color.r, color.g, color.b );
- }*/
+   a->next_raw_value();
+   b->next_raw_value();
+   return summed_value(a,b);
+ }
+ 
+ 
+// Used for transitions between routines. Multiplier is a number in [0,1] that
+// specifies the proportion of the interpolation that's completed (i.e. the 
+// proportion of the return value that should come from the to argument)
+float interpolated_value( const float& from, const float& to, float multiplier )
+{
+  if ( multiplier < 0 ) 
+  {
+    multiplier = 0;
+  }
+  else if ( multiplier > 1 )
+  {
+    multiplier = 1;
+  }
+  float val = from * (1-multiplier) + to * multiplier;
+  return val;
+}
+
  
  byte get_luminance( const float& r, const float& g, const float& b )
  {
@@ -53,12 +74,12 @@ byte next_summed_value( Waveform_generator* a, Waveform_generator* b )
  }
  
  
- 
  rgbInfo_t next_greyscale_value( const float& r, const float& g, const float& b )
  {
    byte luminance = get_luminance( r, g, b ) * MAX_LEVEL;
    return rgbInfo_t( luminance, luminance, luminance );
  }
+ 
  
  rgbInfo_t next_greyscale_value( Waveform_generator* a, Waveform_generator* b, Waveform_generator* c )
  {

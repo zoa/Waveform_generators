@@ -54,7 +54,9 @@ private:
 class Square_generator : public Oscillating_generator
 {
 public:
-  Square_generator( byte minimum, byte maximum, float frequency, uint16_t on_cnt, uint16_t off_cnt, bool start_on = true );
+  // first_count is the initial count value (so if it's on for 30 and off for 30 and you start at 15, it'll
+  // be on for 15 and then off for 30 etc)
+  Square_generator( byte minimum, byte maximum, float frequency, uint16_t on_cnt, uint16_t off_cnt, uint16_t first_count = 0 );
   
 protected:
   void update_value();
@@ -72,15 +74,21 @@ private:
 class White_noise_generator : public Oscillating_generator
 {
 public:
-  White_noise_generator( byte minimum, byte maximium, uint16_t minimum_spacing, uint16_t maximum_spacing, byte baseline_value = 0 );
+  White_noise_generator( byte minimum, byte maximium, uint16_t minimum_spacing, uint16_t maximum_spacing, byte baseline_value = 0, byte pulse_length = 1 );
+  
+  // Increases the spacing by adding min_spacing_increment to the minimum and
+  // and increasing the maximum by the equivalent ratio
+  void increase_spacing( uint16_t min_spacing_increment );
   
 private:
-  uint16_t min_spacing_, max_spacing_;
+  uint16_t min_spacing_, max_spacing_, pulse_width_, pulse_cnt_;
   uint32_t next_cnt_, cnt_;
   float baseline_;
   
   void update_value();
 };
+
+
 
 
 

@@ -56,19 +56,22 @@ void Linear_generator::update_value()
 
 ///////////////////////////////////////////////////////////
 
-Square_generator::Square_generator( byte minimum, byte maximum, float frequency, uint16_t on_cnt, uint16_t off_cnt, bool start_on )
+Square_generator::Square_generator( byte minimum, byte maximum, float frequency, uint16_t on_cnt, uint16_t off_cnt, uint16_t first_count )
   : Oscillating_generator( minimum, maximum, frequency ), 
-    on_(start_on), on_cnt_(on_cnt), off_cnt_(off_cnt)
+    on_( (first_count%(on_cnt+off_cnt)) < on_cnt ), on_cnt_(on_cnt), off_cnt_(off_cnt), cnt_(first_count)//cnt_(first_count - !on_*on_cnt_)
 {}
 
 ///////////////////////////////////////////////////////////
 
 void Square_generator::update_value()
 {
-  if ( on_ && cnt_ > on_cnt_ || !on_ && cnt_ > off_cnt_ )
+  if ( on_ && cnt_ == on_cnt_ || !on_ && cnt_ == on_cnt_ + off_cnt_ )
   {
     on_ = !on_;
-    cnt_ = 0;
+    if ( on_ )
+    {
+      cnt_ = 0;
+    }
   }
   raw_value_ = on_ ? maximum_ : minimum_;
   cnt_ += (frequency_+audio_level_);
@@ -77,27 +80,39 @@ void Square_generator::update_value()
 
 ///////////////////////////////////////////////////////////
 
-White_noise_generator::White_noise_generator( byte minimum, byte maximum, uint16_t minimum_spacing, uint16_t maximum_spacing, byte baseline_value )
+White_noise_generator::White_noise_generator( byte minimum, byte maximum, uint16_t minimum_spacing, uint16_t maximum_spacing, byte baseline_value, byte pulse_width )
   : Oscillating_generator( minimum, maximum, 1 ), min_spacing_(minimum_spacing), max_spacing_(maximum_spacing+1),
-  next_cnt_(0), cnt_(0), baseline_((float)baseline_value/MAX_LEVEL)
+  next_cnt_(0), cnt_(0), baseline_((float)baseline_value/MAX_LEVEL), pulse_width_(pulse_width), pulse_cnt_(0)
  {}
  
 ///////////////////////////////////////////////////////////
 
 void White_noise_generator::update_value()
 {
-  if ( range_ != 0 )
+  if ( cnt_ == next_cnt_ )
   {
-    if ( cnt_ == next_cnt_ )
-    {
-      raw_value_ = minimum_ + (double)rand()/(double)RAND_MAX * range_ * 2;
-      next_cnt_ = random( min_spacing_, max_spacing_ );
-      cnt_ = 0;
-    }
-    else
+    raw_value_ = minimum_ + (double)rand()/(double)RAND_MAX * range_ * 2;
+  }
+  else
+  {
+    if ( cnt_ < next_cnt_ )
     {
       raw_value_ = baseline_;
-      ++cnt_;
+    }
+    else if ( cnt_ >= next_cnt_ + pulse_width_ )
+    {
+      next_cnt_ = random( min_spacing_, max_spacing_ );
+      cnt_ = 0;
+      raw_value_ = baseline_;
     }
   }
+  ++cnt_;
+}
+
+
+void White_noise_generator::increase_spacing( uint16_t min_spacing_increment )
+{
+  uint16_t old_min = min_spacing_;
+  min_spacing_ += min_spacing_increment;
+  max_spacing_ *= (float)min_spacing_ / old_min;
 }
