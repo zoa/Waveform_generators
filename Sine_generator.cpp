@@ -25,11 +25,12 @@ void Sine_generator::update_value()
 
 ///////////////////////////////////////////////////////////
 
-Linear_generator::Linear_generator( Wave_type type, byte minimum, byte maximum, float frequency, byte start_value )
-  : Oscillating_generator( minimum, maximum, frequency ), type_(type), direction_(1)
+Linear_generator::Linear_generator( Wave_type type, byte minimum, byte maximum, float frequency, byte start_value, uint16_t pause )
+  : Oscillating_generator( minimum, maximum, frequency ), type_(type), 
+  direction_(1), pause_(pause), pause_cnt_(0)
 {
-  raw_value_ = start_value <= maximum && start_value >= minimum ? start_value/MAX_LEVEL : minimum/MAX_LEVEL;
-  step_size_ = range_ / MAX_LEVEL;
+  raw_value_ = start_value <= maximum && start_value >= minimum ? (float)start_value/MAX_LEVEL : (minimum)/MAX_LEVEL;
+  step_size_ = (float)range_ / (float)MAX_LEVEL;
 }
 
 ///////////////////////////////////////////////////////////
@@ -38,18 +39,27 @@ void Linear_generator::update_value()
 {
   if ( range_ != 0. )
   {
-    raw_value_ += step_size_*(frequency_+audio_level_)*direction_;
-    if ( raw_value_ > maximum_ || raw_value_ < minimum_ )
+    if ( pause_cnt_ == 0 )
     {
-      if ( type_ == SAWTOOTH )
+      raw_value_ += step_size_*(frequency_+audio_level_)*direction_;
+      if ( raw_value_ > maximum_ || raw_value_ < minimum_ )
       {
-	raw_value_ = minimum_;
+	if ( type_ == SAWTOOTH )
+	{
+	  raw_value_ = minimum_;
+	  pause_cnt_ = 1;
+	}
+	else
+	{
+	  direction_ = (direction_==1) ? -1 : 1;
+	  raw_value_ += step_size_*(frequency_+audio_level_)*direction_;
+	  pause_cnt_ = direction_ == 1;
+	}
       }
-      else
-      {
-	direction_ = (direction_==1) ? -1 : 1;
-	raw_value_ += step_size_*direction_;
-      }
+    }
+    else
+    {
+      pause_cnt_ = pause_cnt_ > pause_ ? 0 : pause_cnt_ + 1;
     }
   }
 }

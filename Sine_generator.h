@@ -37,7 +37,9 @@ class Linear_generator : public Oscillating_generator
 public:
   enum Wave_type { SAWTOOTH, TRIANGLE }; // could make separate classes if more time
   
-  Linear_generator( Wave_type type, byte minimum, byte maximum, float frequency, byte start_value = 0 );
+  // always starts by moving up
+  // pause at the minimum for pause number of steps after each cycle of the wave
+  Linear_generator( Wave_type type, byte minimum, byte maximum, float frequency, byte start_value = 0, uint16_t pause = 0 );
   
 protected:
   void update_value();
@@ -46,6 +48,7 @@ private:
   signed char direction_; //only for triangle waves - 1=up, -1=down
   Wave_type type_;
   float step_size_;
+  uint16_t pause_, pause_cnt_;
 };
 
 
