@@ -29,7 +29,7 @@ Linear_generator::Linear_generator( Wave_type type, byte minimum, byte maximum, 
   : Oscillating_generator( minimum, maximum, frequency ), type_(type), 
   direction_(1), pause_(pause), pause_cnt_(0)
 {
-  raw_value_ = start_value <= maximum && start_value >= minimum ? (float)start_value/MAX_LEVEL : (minimum)/MAX_LEVEL;
+  raw_value_ = start_value <= maximum && start_value >= minimum ? (float)start_value/MAX_LEVEL : ((float)minimum)/MAX_LEVEL;
   step_size_ = (float)range_ / (float)MAX_LEVEL;
 }
 
@@ -75,7 +75,7 @@ Square_generator::Square_generator( byte minimum, byte maximum, float frequency,
 
 void Square_generator::update_value()
 {
-  if ( on_ && cnt_ == on_cnt_ || !on_ && cnt_ == on_cnt_ + off_cnt_ )
+  if ( on_ && cnt_ >= on_cnt_ || !on_ && cnt_ >= on_cnt_ + off_cnt_ )
   {
     on_ = !on_;
     if ( on_ )
