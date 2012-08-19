@@ -47,13 +47,10 @@ byte next_summed_value( Waveform_generator* a, Waveform_generator* b )
    return summed_value(a,b);
  }
  
-// summand should be a float [0,1] 
-rgbInfo_t rgb_scaled_summed_value( Waveform_generator* r, Waveform_generator* g, Waveform_generator* b, float summand )
+ 
+rgbInfo_t rgb_scaled_summed_value( const float& red, const float& green, const float& blue, float summand)
 {
-  float red = r->next_raw_value();
-  float green = g->next_raw_value();
-  float blue = b->next_raw_value();
-  float max = red > green ? red : green;
+ float max = red > green ? red : green;
   max = max > blue ? max : blue;
   summand = 1-max < summand ? 1-max : summand;
   float multiplier = 1 + summand/max;
@@ -61,6 +58,15 @@ rgbInfo_t rgb_scaled_summed_value( Waveform_generator* r, Waveform_generator* g,
   return rgbInfo_t(
     red*multiplier*MAX_LEVEL, green*multiplier*MAX_LEVEL, blue*multiplier*MAX_LEVEL
   );
+}
+ 
+// summand should be a float [0,1] 
+rgbInfo_t rgb_scaled_summed_value( Waveform_generator* r, Waveform_generator* g, Waveform_generator* b, const float& summand )
+{
+  float red = r->next_raw_value();
+  float green = g->next_raw_value();
+  float blue = b->next_raw_value();
+  return rgb_scaled_summed_value(red,green,blue,summand);
 } 
  
 // Used for transitions between routines. Multiplier is a number in [0,1] that
@@ -85,13 +91,13 @@ float interpolated_value( const float& from, const float& to, float multiplier )
  {
    // If this needs to be optimized later, (R+R+B+G+G+G)/6 is a decent approximation
    // although it slightly over-weights red
-   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+   return ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) * MAX_LEVEL;
  }
  
  
  rgbInfo_t next_greyscale_value( const float& r, const float& g, const float& b )
  {
-   byte luminance = get_luminance( r, g, b ) * MAX_LEVEL;
+   byte luminance = get_luminance( r, g, b );
    return rgbInfo_t( luminance, luminance, luminance );
  }
  
