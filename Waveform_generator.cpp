@@ -21,7 +21,9 @@ float Waveform_generator::next_raw_value()
 
 void Waveform_generator::set_audio_level( float level )
 {
-  audio_level_ = level;
+  audio_level_ = level + 0.5;
+  if ( audio_level_ < 0.5 ) audio_level_ = 0.5;
+  if ( audio_level_ > 1.5 ) audio_level_ = 1.5;
 }
 
 ///////////////////////////////////////////////////////////
@@ -32,6 +34,11 @@ Oscillating_generator::Oscillating_generator( byte min_in, byte max_in, float fr
   set_minimum(min_in);
   set_maximum(max_in);
   set_frequency(frequency);
+}
+
+const float Oscillating_generator::frequency() const
+{
+  return frequency_ * audio_level_;
 }
 
 ///////////////////////////////////////////////////////////

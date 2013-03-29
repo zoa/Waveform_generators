@@ -23,7 +23,7 @@ public:
   // Advances the wave one step and returns the newly calculated final value (range [0,1])
   float next_raw_value();
   
-  // Sets the current audio level on a [0,1] scale
+  // Sets the current audio level. Input argument on a [0,1] scale
   void set_audio_level( float level );
 
 protected:
@@ -31,7 +31,7 @@ protected:
   Waveform_generator(float val) : raw_value_(val), audio_level_(0) {}
   
   float raw_value_;
-  float audio_level_;
+  float audio_level_; // this is a frequency multiplier in range [1,2]
   
   // Advances the wave one step
   virtual void update_value() = 0;
@@ -53,7 +53,7 @@ public:
   
   // Frequency multiplier. This is a factor, not a time unit (since the wave's 
   // actual frequency in milliseconds depends on how often next_value is called).
-  const float& frequency() const { return frequency_; }
+  const float frequency() const;
   
   void set_minimum( float new_minimum ); // [0,255]
   void set_maximum( float new_maximum ); // [0,255]
