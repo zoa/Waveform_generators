@@ -87,24 +87,34 @@ float interpolated_value( const float& from, const float& to, float multiplier )
 }
 
  
- byte get_luminance( const float& r, const float& g, const float& b )
- {
-   // If this needs to be optimized later, (R+R+B+G+G+G)/6 is a decent approximation
-   // although it slightly over-weights red
-   return ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) * MAX_LEVEL;
- }
+byte get_luminance( const float& r, const float& g, const float& b )
+{
+  // If this needs to be optimized later, (R+R+B+G+G+G)/6 is a decent approximation
+  // although it slightly over-weights red
+  return ( 0.2126 * r + 0.7152 * g + 0.0722 * b ) * MAX_LEVEL;
+}
  
  
- rgbInfo_t next_greyscale_value( const float& r, const float& g, const float& b )
- {
-   byte luminance = get_luminance( r, g, b );
-   return rgbInfo_t( luminance, luminance, luminance );
- }
+rgbInfo_t next_greyscale_value( const float& r, const float& g, const float& b )
+{
+  byte luminance = get_luminance( r, g, b );
+  return rgbInfo_t( luminance, luminance, luminance );
+}
  
  
- rgbInfo_t next_greyscale_value( Waveform_generator* a, Waveform_generator* b, Waveform_generator* c )
- {
-   return next_greyscale_value( a->next_raw_value(), b->next_raw_value(), c->next_raw_value() );
- }
+rgbInfo_t next_greyscale_value( Waveform_generator* a, Waveform_generator* b, Waveform_generator* c )
+{
+  return next_greyscale_value( a->next_raw_value(), b->next_raw_value(), c->next_raw_value() );
+}
+ 
+
+rgbInfo_t fade_color( rgbInfo_t color, float fade_fraction )
+{
+  color.r *= fade_fraction;
+  color.g *= fade_fraction;
+  color.b *= fade_fraction;
+  return color;
+}
+
 
 #endif
